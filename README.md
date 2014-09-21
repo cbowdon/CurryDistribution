@@ -2,7 +2,7 @@
 
 This is the Beer Distribution Game, implemented in Haskell.
 
-## Rules (gleaned from the net)
+## Rules
 
 ### Objective
 To provide curry as demanded, at minimal cost. There are 2 sources of cost:
@@ -30,10 +30,11 @@ On each turn:
 2. Players receive the order placed 1 turn ago by the downstream player and have this amount deducted from their inventory/added to their backlog.
 3. Players decide an amount to order with their upstream player. (The Customer will place pseudo-random orders.)
 
-A reasonable maximum turns is something like 52 (i.e. a year of business). The aim is to simulate ongoing business, so it may be desirable to _lie about_ or _not reveal_ the maximum number of turns, to encourage players to avoid a short-term strategy.
+The Factory places orders and receives product on the same schedule, but instead of an upstream player there is simply 'time to manufacture'.
+
+A reasonable maximum turns is something like 52 (i.e. a year of business). The aim is to simulate ongoing business, so it may be desirable to _lie about_ or _not reveal_ the maximum turns, to encourage players to avoid a short-term strategy.
 
 ### Scoring
-
 This may well be tweaked a bit later.
 
 Most importantly:
