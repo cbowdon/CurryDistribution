@@ -19,17 +19,36 @@ data Board = Board { turn :: Int
  - There will also be a function that updates the board on each turn.
  - Its inputs will be the current board, the Customer's order and the player's input (their order).
  -}
-update :: Board -> Int -> Int -> Board
-update = undefined
+updateBoard :: Board -> Int -> Int -> Board
+updateBoard = undefined
 
 {-
- - The player has an associated inventory and backlog. The challenging part is representing the time-delayed orders.
- - Remember, upstream players only receive the order after 1 turn, and the downstream player only receives the product after 2.
- - Perhaps a better way to model the entire game would be as a sequence of events updating the board.
- - The current state of the board can be derived by applying the events.
+ - The player has an associated inventory and backlog.
+ - They have a position in the supply chain.
+ - They may not be human.
  -}
 data Player = Player { backlog :: Int
                      , inventory :: Int
-                     , order :: Int
                      , isHuman :: Bool
+                     , position :: Position
                      } deriving Show
+
+{-
+ - Position may not actually matter since every player in the chain has the same behaviour except those at the ends.
+ - We may even want to experiment with chains of arbitrary length. Perhaps we will redefine this later.
+ -}
+data Position = Customer | Retailer | Wholesaler | Distributor | Factory
+
+{-
+ - There will be a function to update a player with an imminent arrival and order.
+ - It will deduct from inventory and add to backlog as appropriate.
+ -}
+updatePlayer :: Player -> Int -> Int -> Player
+updatePlayer :: undefined
+
+{-
+ - The challenging part is representing the time-delayed orders.
+ - Remember, upstream players only receive the order after 1 turn, and the downstream player only receives the product after 2.
+ - Perhaps a better way to model the entire game would be as a sequence of events updating the board.
+ - The current state of the board can be derived by applying the events. This is known as "event sourcing".
+ -}
