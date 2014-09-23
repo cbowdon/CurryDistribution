@@ -34,6 +34,10 @@ The Factory places orders and receives product on the same schedule, but instead
 
 A reasonable maximum turns is something like 52 (i.e. a year of business). The aim is to simulate ongoing business, so it may be desirable to _lie about_ or _not reveal_ the maximum turns, to encourage players to avoid a short-term strategy.
 
+The Customer's orders can be randomly generated within reasonable limits. When used a teaching tool it is preferred to keep the Customer's orders relatively stable, to highlight the fluctuations caused by the players themselves.
+
+(It's quite fascinating - see the [MIT description](http://web.mit.edu/jsterman/www/SDG/beergame.html). The naive players will amplify the customer's demand and cause feedback loops. A better player should apparently act a bit like a smoothing filter.)
+
 ### Scoring
 This may well be tweaked a bit later.
 
