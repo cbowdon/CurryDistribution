@@ -55,12 +55,12 @@ main = do
     print b'
 
 runTurn :: History -> IO History
-runTurn h = do
+runTurn hist@(h:hs) = do
     co <- getCustomerOrder
     pi <- getPlayerOrder
     case pi of
-        QuitGame -> return h
-        Order pi -> runTurn $  updateBoard h co pi : h
+        QuitGame -> return hist
+        Order pi -> runTurn $ updateBoard h co pi : hist
 
 generateBoard :: IO Board
 generateBoard = undefined
@@ -71,14 +71,41 @@ getCustomerOrder = undefined
 getPlayerOrder :: IO PlayerInput
 getPlayerOrder = undefined
 
--- customer to factory
+updateBoard :: Board -> Int -> Int -> Board
+updateBoard b co po = b { turn = turn b + 1
+                        , chain = recordOrders co po . applyUpdates $ chain b }
+
+recordOrders :: Int -> Int -> [Player] -> [Player]
+recordOrders co po = map recordOrder
+    where
+        recordOrder p = case position p of
+            Customer -> p { orders = co:orders p }
+            _        -> if isHuman p then p { orders = po:orders p } else p
+
+applyUpdates :: [Player] -> [Player]
+applyUpdates =
+    map dropOldestOrder .
+    reverse . -- TODO reverse reverse...
+    subtractOrders .
+    reverse .
+    addShipments
+
 subtractOrders :: [Player] -> [Player]
-subtractOrders (p1:p2:ps) = subtractOrder p1 p2 : subtractOrders (p2:ps)
-subtractOrders (p:_)      = [p]
+subtractOrders = moveProducts subtractOrder
+
+addShipments :: [Player] -> [Player]
+addShipments = moveProducts addShipment
+
+moveProducts :: (Player -> Player -> Player) -> [Player] -> [Player]
+moveProducts f (p1:p2:ps) = f p1 p2 : moveProducts f (p2:ps)
+moveProducts f (p:_) = [p]
 
 -- Subtract p1's order from 2 turns ago from p2
 subtractOrder :: Player -> Player -> Player
 subtractOrder = moveProduct (-)
+
+addShipment :: Player -> Player -> Player
+addShipment = flip $ moveProduct (+)
 
 type AddOp = Int -> Int -> Int
 
@@ -89,6 +116,3 @@ moveProduct op p1 p2 = case orders p1 of
 
 dropOldestOrder :: Player -> Player
 dropOldestOrder p = p { orders = drop 1 $ orders p }
-
-updateBoard :: History -> Int -> Int -> Board
-updateBoard = undefined
