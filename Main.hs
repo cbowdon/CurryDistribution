@@ -51,25 +51,30 @@ initialBoard = Board { turn = 0, chain = initialPlayers }
 main :: IO ()
 main = do
     b <- generateBoard
-    b' <- runTurn [b]
+    (b':_) <- runTurn [b]
     print b'
 
 runTurn :: History -> IO History
-runTurn hist@(h:hs) = do
+runTurn hist@(b:_) = do
+    print b
     co <- getCustomerOrder
     pi <- getPlayerOrder
     case pi of
         QuitGame -> return hist
-        Order pi -> runTurn $ updateBoard h co pi : hist
+        Order pi -> runTurn $ updateBoard b co pi : hist
 
 generateBoard :: IO Board
-generateBoard = undefined
+generateBoard = return initialBoard -- TODO randomize
 
 getCustomerOrder :: IO Int
-getCustomerOrder = undefined
+getCustomerOrder = return 10
 
 getPlayerOrder :: IO PlayerInput
-getPlayerOrder = undefined
+getPlayerOrder = fmap parseInput getLine
+    where
+        parseInput i
+            | i == "q"  = QuitGame
+            | otherwise = Order . read $ i
 
 updateBoard :: Board -> Int -> Int -> Board
 updateBoard b co po = b { turn = turn b + 1
