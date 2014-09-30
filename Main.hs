@@ -1,6 +1,13 @@
+import Data.List (intersperse)
+
 data Board = Board { turn :: Int
                    , chain :: [Player]
-                   } deriving Show
+                   }
+
+instance Show Board where
+    show b = let t = show $ turn b
+                 c = foldr (++) "" . intersperse "\n" . map show $ chain b
+             in t ++ replicate 10 '-' ++ "\n" ++ c
 
 type History = [Board]
 
@@ -8,7 +15,13 @@ data Player = Player { inventory :: Int
                      , isHuman :: Bool
                      , position :: Position
                      , orders :: [Int]
-                     } deriving Show
+                     }
+
+instance Show Player where
+    show p = foldr (++) "" . intersperse " " $ [ show (position p)
+                                               , show (inventory p)
+                                               , show (orders p)
+                                               , if isHuman p then "(human)" else "(AI)"]
 
 data Position = Customer |
                 Retailer |
@@ -67,7 +80,7 @@ generateBoard :: IO Board
 generateBoard = return initialBoard -- TODO randomize
 
 getCustomerOrder :: IO Int
-getCustomerOrder = return 10
+getCustomerOrder = return 10 -- TODO randomize
 
 getPlayerOrder :: IO PlayerInput
 getPlayerOrder = fmap parseInput getLine
@@ -85,7 +98,9 @@ recordOrders co po = map recordOrder
     where
         recordOrder p = case position p of
             Customer -> p { orders = co:orders p }
-            _        -> if isHuman p then p { orders = po:orders p } else p
+            _        -> if isHuman p
+                        then p { orders = po:orders p }
+                        else p { orders = 10:orders p } -- TODO AI
 
 applyUpdates :: [Player] -> [Player]
 applyUpdates =
