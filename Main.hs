@@ -1,3 +1,5 @@
+import Prelude hiding (drop)
+import Data.Sequence hiding (reverse, replicate)
 import Data.List (intersperse)
 
 data Board = Board { turn :: Int
@@ -14,7 +16,7 @@ type History = [Board]
 data Player = Player { inventory :: Int
                      , isHuman :: Bool
                      , position :: Position
-                     , orders :: [Int]
+                     , orders :: Seq Int -- latest orders on the right
                      }
 
 instance Show Player where
@@ -32,7 +34,7 @@ data Position = Customer |
 
 data PlayerInput = Order Int | QuitGame deriving Show
 
-initialOrders = [0, 0]
+initialOrders = fromList [0, 0]
 
 initialPlayers = [ Player { inventory = 100
                           , isHuman = False
@@ -97,10 +99,10 @@ recordOrders :: Int -> Int -> [Player] -> [Player]
 recordOrders co po = map recordOrder
     where
         recordOrder p = case position p of
-            Customer -> p { orders = co:orders p }
+            Customer -> p { orders = orders p |> co }
             _        -> if isHuman p
-                        then p { orders = po:orders p }
-                        else p { orders = 10:orders p } -- TODO AI
+                        then p { orders = orders p |> po }
+                        else p { orders = orders p |> 10 } -- TODO AI
 
 applyUpdates :: [Player] -> [Player]
 applyUpdates =
@@ -130,9 +132,9 @@ addShipment = flip $ moveProduct (+)
 type AddOp = Int -> Int -> Int
 
 moveProduct :: AddOp -> Player -> Player -> Player
-moveProduct op p1 p2 = case orders p1 of
-    o:_ -> p2 { inventory = inventory p2 `op` o }
-    _   -> p2
+moveProduct op p1 p2 = case viewl . orders $ p1 of
+    o :< _  -> p2 { inventory = inventory p2 `op` o }
+    _       -> p2
 
 dropOldestOrder :: Player -> Player
 dropOldestOrder p = p { orders = drop 1 $ orders p }
