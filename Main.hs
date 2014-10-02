@@ -107,7 +107,9 @@ recordOrders co po = map recordOrder
 applyUpdates :: [Player] -> [Player]
 applyUpdates =
     map dropOldestOrder .
-    reverse . -- TODO reverse reverse...
+    -- TODO reverse reverse... not ideal
+    -- can probably model this better by passing callbacks down the chain
+    reverse .
     subtractOrders .
     reverse .
     addShipments
@@ -122,9 +124,8 @@ moveProducts :: (Player -> Player -> Player) -> [Player] -> [Player]
 moveProducts f (p1:p2:ps) = f p1 p2 : moveProducts f (p2:ps)
 moveProducts f (p:_) = [p]
 
--- Subtract p1's order from 2 turns ago from p2
 subtractOrder :: Player -> Player -> Player
-subtractOrder = moveProduct (-)
+subtractOrder = flip $ moveProduct (-)
 
 addShipment :: Player -> Player -> Player
 addShipment = flip $ moveProduct (+)
